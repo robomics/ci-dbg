@@ -157,6 +157,14 @@ jobs:
       - name: Print Ccache statistics
         run: ccache -s
 
+      - name: Print Conan home
+        run: |
+          conan config home
+          echo "CONAN_HOME=$CONAN_HOME"
+          
+          ls -lah "$CONAN_HOME"
+          ls -lah "$CONAN_HOME/p"
+
   run-unit-tests:
     name: Run unit tests
     needs: [build-project]
@@ -204,3 +212,4 @@ jobs:
           which ctest
           echo "PATH=$PATH"
           sudo "PATH=$PATH" -u devel which ctest
+          sudo "PATH=$PATH" -u devel ctest --help
