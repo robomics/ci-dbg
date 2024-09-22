@@ -80,7 +80,7 @@ jobs:
         uses: actions/cache@v4
         with:
           key: conan-${{ steps.cache-key.outputs.conan-key }}
-          path: /root/
+          path: /opt/conan
           save-always: true
 
       - name: Clean Conan cache (pre-build)
