@@ -97,7 +97,7 @@ jobs:
           fi
 
       - name: Check Conan artifacts before build
-        run: find "$CONAN_HOME"
+        run: find "$CONAN_HOME" -exec ls -lah {} +
 
       - name: Install build dependencies
         run: |
@@ -111,7 +111,7 @@ jobs:
              --output-folder=build
 
       - name: Check Conan artifacts before clean
-        run: find "$CONAN_HOME"
+        run: find "$CONAN_HOME" -exec ls -lah {} +
 
       - name: Clean Conan cache (post-build)
         if: steps.cache-conan.outputs.cache-hit != 'true'
@@ -121,7 +121,7 @@ jobs:
           conan cache clean "*" --source
 
       - name: Check Conan artifacts after clean
-        run: find "$CONAN_HOME"
+        run: find "$CONAN_HOME" -exec ls -lah {} +
 
       - name: Save Conan cache
         uses: actions/cache/save@v4
@@ -149,8 +149,14 @@ jobs:
           restore-keys: ${{ steps.cache-key.outputs.ccache-restore-key }}
           path: ${{ env.CCACHE_DIR }}
 
+      - name: Check Ccache artifacts before build
+        run: find "$CCACHE_DIR" -exec ls -lah {} +
+
       - name: Build project
         run: cmake --build build -j $(nproc)
+
+      - name: Check Ccache artifacts after build
+        run: find "$CCACHE_DIR" -exec ls -lah {} +
 
       - name: Package build folder
         run: tar -cf - build/ | zstd -T0 -13 -o build.tar.zst
