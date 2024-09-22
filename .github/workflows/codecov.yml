@@ -211,5 +211,5 @@ jobs:
         run: |
           which ctest
           echo -E env "PATH=$PATH"
-          sudo -E env "PATH=$PATH" -u devel which ctest
-          sudo -E env "PATH=$PATH" -u devel ctest --help
+          sudo -u devel -E env "PATH=$PATH" which ctest
+          sudo -u devel -E env "PATH=$PATH" ctest --help
