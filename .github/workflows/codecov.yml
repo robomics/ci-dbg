@@ -38,13 +38,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  CCACHE_DIR: "/opt/ccache-cache"
-  CCACHE_COMPILERCHECK: "content"
-  CCACHE_COMPRESSLEVEL: "13"
-  CCACHE_MAXSIZE: "200M"
-  CONAN_HOME: "/opt/conan/"
-  HICTK_CI: "1"
 
 jobs:
   build-project:
@@ -53,6 +46,13 @@ jobs:
     container:
       image: ghcr.io/paulsengroup/ci-docker-images/ubuntu-24.04-cxx-gcc-14
       options: "--user=root"
+    env:
+      CCACHE_DIR: "/opt/ccache-cache"
+      CCACHE_COMPILERCHECK: "content"
+      CCACHE_COMPRESSLEVEL: "13"
+      CCACHE_MAXSIZE: "200M"
+      CONAN_HOME: "/opt/conan/"
+      HICTK_CI: "1"
 
     steps:
       - uses: actions/checkout@v4
@@ -90,11 +90,11 @@ jobs:
           conan cache clean "*" --source
           conan remove --confirm "*"
 
-      # - name: Copy Conan settings
-      #   run: |
-      #     if [ ! -f "$CONAN_HOME/settings.yml" ]; then
-      #       cp "/root/.conan2/settings.yml" "$CONAN_HOME"
-      #     fi
+      - name: Copy Conan settings
+        run: |
+          if [ ! -f "$CONAN_HOME/settings.yml" ]; then
+            cp "/root/.conan2/settings.yml" "$CONAN_HOME"
+          fi
 
       - name: Check Conan artifacts before build
         run: find "$CONAN_HOME"
