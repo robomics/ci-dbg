@@ -210,6 +210,6 @@ jobs:
       - name: Run unit tests
         run: |
           which ctest
-          echo "PATH=$PATH"
-          sudo "PATH=$PATH" -u devel which ctest
-          sudo "PATH=$PATH" -u devel ctest --help
+          echo -E env "PATH=$PATH"
+          sudo -E env "PATH=$PATH" -u devel which ctest
+          sudo -E env "PATH=$PATH" -u devel ctest --help
