@@ -9,12 +9,24 @@ on:
     paths:
       - ".github/codecov.yml"
       - ".github/workflows/codecov.yml"
+      - "cmake/**"
+      - "examples/**"
+      - "src/**"
+      - "test/integration/**"
+      - "test/units/**"
+      - "CMakeLists.txt"
       - "conanfile.py"
 
   pull_request:
     paths:
       - ".github/codecov.yml"
       - ".github/workflows/codecov.yml"
+      - "cmake/**"
+      - "examples/**"
+      - "src/**"
+      - "test/integration/**"
+      - "test/units/**"
+      - "CMakeLists.txt"
       - "conanfile.py"
 
 # https://stackoverflow.com/a/72408109
