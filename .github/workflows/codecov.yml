@@ -90,11 +90,11 @@ jobs:
           conan cache clean "*" --source
           conan remove --confirm "*"
 
-      - name: Copy Conan settings
-        run: |
-          if [ ! -f "$CONAN_HOME/settings.yml" ]; then
-            cp "/root/.conan2/settings.yml" "$CONAN_HOME"
-          fi
+      # - name: Copy Conan settings
+      #   run: |
+      #     if [ ! -f "$CONAN_HOME/settings.yml" ]; then
+      #       cp "/root/.conan2/settings.yml" "$CONAN_HOME"
+      #     fi
 
       - name: Check Conan artifacts before build
         run: find "$CONAN_HOME"
