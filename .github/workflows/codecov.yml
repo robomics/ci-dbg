@@ -107,12 +107,18 @@ jobs:
              -s compiler.cppstd=17               \
              --output-folder=build
 
+      - name: Check Conan artifacts before build
+        run: find "$CONAN_HOME"
+
       - name: Clean Conan cache (post-build)
         if: steps.cache-conan.outputs.cache-hit != 'true'
         run: |
           conan cache clean "*" --build
           conan cache clean "*" --download
           conan cache clean "*" --source
+      
+      - name: Check Conan artifacts before build
+        run: find "$CONAN_HOME"
 
       - name: Save Conan cache
         uses: actions/cache/save@v4
