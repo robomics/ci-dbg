@@ -80,7 +80,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           key: conan-${{ steps.cache-key.outputs.conan-key }}
-          path: "${{ env.CONAN_HOME }}"
+          path: ${{ env.CONAN_HOME }}
+          save-always: true
 
       - name: Clean Conan cache (pre-build)
         if: steps.cache-conan.outputs.cache-hit != 'true'
@@ -131,13 +132,6 @@ jobs:
           mkdir -p "$CONAN_HOME"
           ls -lah "$CONAN_HOME"
           find "$CONAN_HOME" -type d -exec ls -lah {} +
-
-      - name: Save Conan cache
-        uses: actions/cache/save@v4
-        if: steps.cache-conan.outputs.cache-hit != 'true'
-        with:
-          key: conan-${{ steps.cache-key.outputs.conan-key }}
-          path: "${{ env.CONAN_HOME }}"
 
       - name: Configure project
         run: |
