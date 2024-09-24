@@ -49,10 +49,11 @@ jobs:
     env:
       CCACHE_DIR: "/opt/ccache-cache"
       CCACHE_COMPILERCHECK: "content"
-      CCACHE_COMPRESSLEVEL: "13"
-      CCACHE_MAXSIZE: "200M"
+      CCACHE_NOCOMPRESS: "1"
+      CCACHE_MAXSIZE: "50M"
       CONAN_HOME: "/opt/conan/"
-      HICTK_CI: "1"
+    outputs:
+      ccache-old-cache-key: ${{ steps.cache-ccache.outputs.cache-matched-key }}
 
     steps:
       - uses: actions/checkout@v4
@@ -145,12 +146,19 @@ jobs:
                 -S .                                          \
                 -B build
 
-      - name: Cache Ccache folder
-        uses: actions/cache@v4
+      - name: Restore Ccache folder
+        id: cache-ccache
+        uses: actions/cache/restore@v4
         with:
-          key: ${{ steps.cache-key.outputs.ccache-key }}
-          restore-keys: ${{ steps.cache-key.outputs.ccache-restore-key }}
-          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.cache-key.outputs.ccache-restore-key }}
+          path: /tmp/ccache-cache.tar.zst
+
+      - name: Extract Ccache folder
+        if: steps.cache-ccache.outputs.cache-matched-key != ''
+        run: |
+          mkdir -p "$CCACHE_DIR"
+          tar -xf /tmp/ccache-cache.tar.zst -C "$CCACHE_DIR"
+          rm /tmp/ccache-cache.tar.zst
 
       - name: Check Ccache artifacts before build
         run: |
@@ -178,8 +186,29 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Print Ccache statistics
+      - name: Print Ccache statistics (pre-cleanup)
         run: ccache -s
+
+      - name: Cleanup Ccache folder
+        run: |
+          ccache --evict-older-than=14400s # 4h
+          ccache --cleanup
+
+      - name: Print Ccache statistics (post-cleanup)
+        run: ccache -s
+
+      - name: Archive Ccache folder
+        run: |
+          tar -cf - -C "$CCACHE_DIR" "$CCACHE_DIR" |
+          zstd -T0 -8 --long -v -o /tmp/ccache-cache.tar.zst
+
+      - name: Save Ccache folder
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-key.outputs.ccache-key }}
+          path: /tmp/ccache-cache.tar.zst
+        env:
+          ZSTD_CLEVEL: 1
 
       - name: Print Conan home
         run: |
@@ -188,6 +217,13 @@ jobs:
           
           ls -lah "$CONAN_HOME"
           ls -lah "$CONAN_HOME/p"
+
+  clean-stale-cache:
+    needs: [build-project]
+    uses: robomics/ci-dbg/.github/workflows/evict-gha-cache.yml@main
+    name: Clean stale Ccache cache
+    with:
+      cache-key: "${{ needs.build-project.outputs.ccache-old-cache-key }}"
 
   run-unit-tests:
     name: Run unit tests
