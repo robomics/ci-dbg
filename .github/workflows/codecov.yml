@@ -222,8 +222,7 @@ jobs:
     needs: [build-project]
     uses: robomics/ci-dbg/.github/workflows/evict-gha-cache.yml@main
     name: Clean stale Ccache cache
-    permissions:
-      contents: write
+    permissions: write-all
     with:
       cache-key: "${{ needs.build-project.outputs.ccache-old-cache-key }}"
 
